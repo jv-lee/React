@@ -3,13 +3,19 @@ import '../css/style.css';
 
 class TodoList extends Component {
 
+  /**
+   * 组件构造函数，完成数据初始化操作
+   * @param {构造参数} props 
+   */
   constructor(props) {
     super(props);
 
+    //通过初始化的方式 初始赋值handlerInsertEvent.bind事件传递this指向 防止重复绑定消费
     this.handlerInsertEvent = this.handlerInsertEvent.bind(this);
     this.handlerInputChange = this.handlerInputChange.bind(this);
     this.handlerKeyUp = this.handlerKeyUp.bind(this);
 
+    //默认model数据
     this.state = {
       inputValue: `hello world`,
       list: [`learn React`, `learn Component`, `learn react-dom`]
@@ -48,7 +54,9 @@ class TodoList extends Component {
    */
   insertDataToList () {
     if (this.state.inputValue === '') return;
+    //通过解构赋值 复制当前list，在之后加入一个新的数据
     const list = [...this.state.list, this.state.inputValue];
+    //react 通过修改数据来更改ui显示 , list数据源和list同名，可省略key：value 的形式 直接简写
     this.setState({
       inputValue: '',
       list
@@ -83,7 +91,7 @@ class TodoList extends Component {
   render () {
     return (
       <Fragment>
-        {/* JSX 注释 */}
+        {/* JSX 注释 点击label 聚焦input 通过 htmlFor="${id}" */}
         <label htmlFor="my-input">请输入内容：</label>
         <input id="my-input" className="input"
           value={this.state.inputValue}
