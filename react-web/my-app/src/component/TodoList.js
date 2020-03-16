@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import TodoItem from './TodoItem'
 import '../css/style.css';
 
 class TodoList extends Component {
@@ -13,6 +14,7 @@ class TodoList extends Component {
     //通过初始化的方式 初始赋值handlerInsertEvent.bind事件传递this指向 防止重复绑定消费
     this.handlerInsertEvent = this.handlerInsertEvent.bind(this);
     this.handlerInputChange = this.handlerInputChange.bind(this);
+    this.handlerDeleteEvent = this.handlerDeleteEvent.bind(this);
     this.handlerKeyUp = this.handlerKeyUp.bind(this);
 
     //默认model数据
@@ -80,11 +82,21 @@ class TodoList extends Component {
    */
   getListItems () {
     return this.state.list.map((value, index) => {
+      //通过子组件 拆分功能 
       return (
-        <li key={index}>{value}
-          <button onClick={this.handlerDeleteEvent.bind(this, index)}>delete</button>
-        </li>
+        //父组件向子组件通信通过传递参数的方式 子组件通过this.props 来获取
+        <TodoItem
+          key={index}
+          index={index}
+          content={value}
+          deleteFun={this.handlerDeleteEvent}
+        />
       );
+      // return (
+      //   <li key={index}>{value}
+      //     <button onClick={this.handlerDeleteEvent.bind(this, index)}>delete</button>
+      //   </li>
+      // );
     });
   }
 
