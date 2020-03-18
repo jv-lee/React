@@ -101,6 +101,7 @@ class TodoList extends Component {
   }
 
   render () {
+    console.log(this.props.match.params.id);
     return (
       <Fragment>
         {/* JSX 注释 点击label 聚焦input 通过 htmlFor="${id}" */}

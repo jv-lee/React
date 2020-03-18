@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { Button } from 'antd';
+import 'antd/dist/antd.css';
 
 class LifecycleChild extends Component {
 
@@ -15,7 +17,12 @@ class LifecycleChild extends Component {
 
   render () {
     return (
-      <div>{this.props.number}</div>
+      <Fragment>
+        <div>{this.props.number}</div>
+        <Button style={{
+          margin: 30
+        }} type="primary">按钮</Button>
+      </Fragment>
     );
   }
 
