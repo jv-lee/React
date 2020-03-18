@@ -15,8 +15,8 @@ class RouterComponent extends Component {
       <BrowserRouter>
         <Route path="/lifecycle" component={Lifecycle} />
         <Route path="/parent" component={Parent} />
-        <Route path="/todo-list:id" component={TodoList} />
-        <Link to="/todo-list/123">
+        <Route path="/todo-list" component={TodoList} />
+        <Link to="/todo-list">
           <Button style={{ margin: 50 }}>Link-TODO-LIST</Button>
         </Link>
       </BrowserRouter>
