@@ -2,9 +2,9 @@
 import React, { Component, Fragment } from 'react';
 import { Menu } from 'antd';
 import { SmileOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import logo from './logo.png';
 import './style.css';
+import { getMenuData } from '../../net/request';
 
 class AppHeader extends Component {
 
@@ -13,18 +13,6 @@ class AppHeader extends Component {
     this.state = {
       list: []
     }
-  }
-
-  /**
-   * 从网络中获取menu item数据
-   */
-  getMenuItemDataByNetwork () {
-    axios.get('http://www.dell-lee.com/react/api/header.json')
-      .then((res) => {
-        this.setState({
-          list: res.data.data
-        });
-      });
   }
 
   /**
@@ -41,7 +29,12 @@ class AppHeader extends Component {
   }
 
   componentDidMount () {
-    this.getMenuItemDataByNetwork();
+    getMenuData()
+      .then(data => {
+        this.setState({
+          list: data
+        });
+      });
   }
 
   render () {

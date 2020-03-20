@@ -24,6 +24,7 @@ code {
 .content{
   min-height: 860px;
   text-align: center;
+  margin: 10px;
 }
 
 .footer{
