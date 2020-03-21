@@ -1,25 +1,42 @@
 import axios from 'axios';
 import { TIMEOUT, SUCCESS_CODE } from './config';
-import { MENU_API } from './api';
+import { MENU_API, LIST_API, DETAILS_API } from './api';
 
 
 /**
  * 获取菜单数据
  */
 export const getMenuData = () => {
-  Math.abs()
-  return axios.get(MENU_API, { timeout: TIMEOUT })
+  return requestApi(MENU_API);
+}
+
+/**
+ * 获取列表数据
+ * @param id 数据列表id
+ */
+export const getListData = (id) => {
+  return requestApi(LIST_API + id);
+}
+
+
+/**
+ * 获取详情数据
+ */
+export const getDetailsById = (id) => {
+  return requestApi(DETAILS_API + id);
+}
+
+const requestApi = (url) => {
+  return axios.get(url, { timeout: TIMEOUT })
     .then(res => {
       if (res.status === SUCCESS_CODE) {
-        return res.data.data
+        return res.data.data;
       }
-      throw Error('网络数据获取错误');
+      throw Error('无落数据获取错误');
     }).catch(e => {
       if (e) {
         console.log(e);
       }
-      Math.abs()
-
       //返回错误数据
     }).then(data => {
       return new Promise(resolve => {

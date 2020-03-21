@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { List } from 'antd';
+import { List, ConfigProvider, Empty } from 'antd';
+import { getListData } from '../../net/request';
+import { Link } from 'react-router-dom/cjs/react-router-dom';
 
-const data = [
-  'Racing car sprays burning fuel into crowd.',
-  'Japanese princess to wed commoner.',
-  'Australian walks 100km after outback crash.',
-  'Man charged over missing wedding girl.',
-  'Los Angeles battles huge wildfires.',
-];
+
+//自定义数据样式
+const customizeEmpty = () => (
+  <Empty description="暂无内容"></Empty>
+);
 
 class PageList extends Component {
 
@@ -18,19 +18,40 @@ class PageList extends Component {
     }
   }
 
+  initData () {
+    getListData(this.props.match.params.id)
+      .then(data => {
+        this.setState({
+          data
+        });
+      });
+  }
+
+  componentDidMount () {
+    this.initData();
+  }
+
+  UNSAFE_componentWillReceiveProps () {
+    this.initData();
+  }
+
   render () {
     return (
       <div>
-        <List
-          style={{ background: '#fff' }}
-          bordered
-          dataSource={data}
-          renderItem={item => (
-            <List.Item>
-              {item}
-            </List.Item>
-          )}
-        />
+        <ConfigProvider renderEmpty={customizeEmpty} >
+          <List
+            style={{ background: '#fff' }}
+            bordered
+            dataSource={this.state.data}
+            renderItem={item =>
+              (
+                <List.Item className="item">
+                  <Link to={`/details/${item.id}`}>{item.title}</Link>
+                </List.Item>
+              )
+            }
+          />
+        </ConfigProvider>
       </div>
     )
   }

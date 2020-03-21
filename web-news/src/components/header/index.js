@@ -5,13 +5,15 @@ import { SmileOutlined } from '@ant-design/icons';
 import logo from './logo.png';
 import './style.css';
 import { getMenuData } from '../../net/request';
+import { Link } from 'react-router-dom/cjs/react-router-dom';
 
 class AppHeader extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      list: []
+      list: [],
+      current: '1'
     }
   }
 
@@ -22,7 +24,9 @@ class AppHeader extends Component {
     return this.state.list.map(item => {
       return (
         <Menu.Item key={item.id}>
-          <SmileOutlined />{item.title}
+          <Link to={`/${item.id}`}>
+            <SmileOutlined />{item.title}
+          </Link>
         </Menu.Item>
       );
     });
@@ -40,8 +44,12 @@ class AppHeader extends Component {
   render () {
     return (
       <Fragment>
-        <img className="app-header-logo" src={logo} />
-        <Menu mode="horizontal"
+        <Link to="/" >
+          <img className="app-header-logo" src={logo} />
+        </Link>
+        <Menu
+          defaultSelectedKeys="1"
+          mode="horizontal"
           className="app-header-menu">
           {this.buildMenuItemViews()}
         </Menu>

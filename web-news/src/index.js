@@ -13,20 +13,20 @@ const { Header, Content, Footer } = Layout;
 class App extends Component {
   render () {
     return (
-      <Layout style={{ minWidth: 1300 }}>
-        <Header className="header">
-          <AppHeader />
-        </Header>
-        <Content className="content">
-          <BrowserRouter>
+      <BrowserRouter>
+        <Layout style={{ minWidth: 1300, height: '100%' }}>
+          <Header className="header">
+            <AppHeader />
+          </Header>
+          <Content className="content">
             <Switch>
-              <Route path="/details" component={Details} />
-              <Route path="/" component={PageList} />
+              <Route path="/details/:id" component={Details} />
+              <Route path="/:id?" component={PageList} />
             </Switch>
-          </BrowserRouter>
-        </Content>
-        <Footer className="footer">Footer</Footer>
-      </Layout>
+          </Content>
+          <Footer className="footer">@copyright Dell-Lee 2020</Footer>
+        </Layout>
+      </BrowserRouter>
     );
   }
 }
