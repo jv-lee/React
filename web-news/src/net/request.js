@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { TIMEOUT, SUCCESS_CODE } from './config';
-import { MENU_API, LIST_API, DETAILS_API } from './api';
+import { MENU_API, LIST_API, DETAILS_API, IS_LOGIN_API, LOGIN_API } from './api';
 
 
 /**
@@ -24,6 +24,22 @@ export const getListData = (id) => {
  */
 export const getDetailsById = (id) => {
   return requestApi(DETAILS_API + id);
+}
+
+/**
+ * 获取登陆状态
+ */
+export const isLoginStatus = () => {
+  return requestApi(IS_LOGIN_API);
+}
+
+/**
+ * 用户登陆
+ * @param {用户名} username 
+ * @param {密码} password 
+ */
+export const login = (username, password) => {
+  return requestApi(LOGIN_API(username, password));
 }
 
 const requestApi = (url) => {

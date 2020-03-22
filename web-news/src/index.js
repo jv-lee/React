@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { Layout } from 'antd';
 import AppHeader from './components/header';
+import Login from './components/login';
 import PageList from './router/list';
 import Details from './router/details';
 import 'antd/dist/antd.css';
@@ -19,6 +20,7 @@ class App extends Component {
             <AppHeader />
           </Header>
           <Content className="content">
+            <Login />
             <Switch>
               <Route path="/details/:id" component={Details} />
               <Route path="/:id?" component={PageList} />
