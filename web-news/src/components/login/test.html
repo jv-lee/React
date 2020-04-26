@@ -1,0 +1,582 @@
+<p>一个高效的Android刷新库，理论上支持所有的视图，比官方的SwipeRefreshLayout更强大且使用方便.</p>
+<h2>特性:</h2>
+<ul>
+<li>理论上支持所有的视图,且可根据具体需求高效适配.</li>
+<li>支持多点触摸.</li>
+<li>支持嵌套滑动,完整实现了NestedScrollingChild3，NestedScrollingParent3 接口,玩转CoordinatorLayout.</li>
+<li>直接继承自ViewGroup,拥有卓越的性能,支持类FameLayout的特性（Gravity、Margin).</li>
+<li>支持自动刷新、自动上拉加载、到底自动加载更多（不推荐，建议使用Adapter实现，可自定义到底判断逻辑回调实现预加载更多）.</li>
+<li>支持越界回弹.</li>
+<li>支持刷新视图自定样式:STYLE_DEFAULT(默认不改变大小)、STYLE_SCALE(动态改变大小，会在SRL内部测量并布局，所以性能会有损失)、STYLE_PIN(不会改变视图大小，固定在顶部或者底部)、STYLE_FOLLOW_SCALE(先纵向跟随移动并且不改变视图大小，大于视图高度后动态改变视图大小且性能会有损失)、STYLE_FOLLOW_PIN(不会改变视图大小，先纵向跟随移动，大于视图高度后固定)、STYLE_FOLLOW_CENTER(不会改变视图大小，先纵向跟随移动，大于视图高度后让视图保持在移动的距离中心点).</li>
+<li>支持二级刷新事件（TwoLevelSmoothRefreshLayout）,PS:淘宝二楼、京东活动.</li>
+<li>支持横向刷新(HorizontalSmoothRefreshLayout).</li>
+<li>支持ListView、GridView、RecyclerView加载更多的同步平滑滚动.</li>
+<li>支持手势:同步Fling(刷新视图仍可见的情况下,会先回滚隐藏刷新视图,而后向下传递Fling手势).</li>
+<li>支持作为可拉伸内部视图布局使用（类小米设置页效果）.</li>
+<li>丰富的回调接口和调试信息,可利用现有API实现丰富的效果.</li>
+</ul>
+<h2>引入</h2>
+<p>添加如下依赖到你的 build.gradle 文件:</p>
+<pre><code>dependencies {
+    implementation 'me.dkzwm.widget.srl:core:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-util:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-material:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-horizontal:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-classics:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-two-level:1.7.1.1.androidx'
+
+    //android support 最终版本
+    implementation 'me.dkzwm.widget.srl:core:1.6.6.8'
+    implementation 'me.dkzwm.widget.srl:ext-util:1.6.6.8'
+    implementation 'me.dkzwm.widget.srl:ext-material:1.6.6.8'
+    implementation 'me.dkzwm.widget.srl:ext-horizontal:1.6.6.8'
+    implementation 'me.dkzwm.widget.srl:ext-classics:1.6.6.8'
+    implementation 'me.dkzwm.widget.srl:ext-two-level:1.6.6.8'
+}
+</code></pre>
+<h2>预览</h2>
+<table>
+<thead>
+<tr>
+<th>嵌套滑动</th>
+<th>二级刷新</th>
+<th>横向刷新</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="https://gank.io/images/4ff6f5d09ba241ddb6ffd066280b51cf" alt="嵌套滑动"></td>
+<td><img src="https://gank.io/images/b67db4c6d8964f53bcf5d08b9059c042" alt="二级刷新"></td>
+<td><img src="https://gank.io/images/dd19d9facd564069a39df20b6b0588b6" alt="横向刷新"></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>拉伸收缩效果</th>
+<th>QQ红包活动</th>
+<th>浏览器内核下拉展示</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="https://gank.io/images/83fedd330fe34897b942c33472ddcc37" alt="拉伸收缩效果"></td>
+<td><img src="https://gank.io/images/abbbcc9e6aac4c0a9e9a7cc744a752f3" alt="QQ红包活动"></td>
+<td><img src="https://gank.io/images/b53b6613f4ae4e33bb062bab1321a433" alt="浏览器内核下拉展示"></td>
+</tr>
+</tbody>
+</table>
+<h2>使用</h2>
+<h4>在Xml中配置</h4>
+<pre><code>?xml version="1.0" encoding="utf-8"?<me.dkzwm.widget.srl.smoothrefreshlayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/refreshLayout" android:layout_width="match_parent" android:layout_height="match_parent"><textview android:layout_width="match_parent" android:layout_height="match_parent"></textview></me.dkzwm.widget.srl.smoothrefreshlayout>
+</code></pre>
+<h4>Java代码配置</h4>
+<pre><code>SmoothRefreshLayout refreshLayout = (SmoothRefreshLayout)findViewById(R.id.smoothRefreshLayout);
+refreshLayout.setHeaderView(new ClassicHeader(this));
+refreshLayout.setOnRefreshListener(new RefreshingListenerAdapter() {
+@Override
+public void onRefreshing() {
+mHandler.postDelayed(new Runnable() {
+@Override
+public void run() {
+refreshLayout.refreshComplete();
+}
+}, 4000);
+}
+});
+</code></pre>
+<h4>自定义刷新视图</h4>
+<h5>接口定义</h5>
+<pre><code>public interface IRefreshView      <t extends="" iindicator=""> {
+
+    byte TYPE_HEADER = 0;
+    byte TYPE_FOOTER = 1;
+
+    byte STYLE_DEFAULT = 0;
+    byte STYLE_SCALE = 1;
+    byte STYLE_PIN = 2;
+    byte STYLE_FOLLOW_SCALE = 3;
+    byte STYLE_FOLLOW_PIN = 4;
+    byte STYLE_FOLLOW_CENTER = 5;
+
+    /**
+     * 返回是头部视图还是尾部视图;
+     */
+    int getType();
+
+    /**
+     * 一般情况都是View实现本接口，所以返回this;
+     */
+    View getView();
+
+    /**
+     * 获取视图样式，自1.4.8版本后支持6种样式，STYLE_DEFAULT、STYLE_SCALE、STYLE_PIN、STYLE_FOLLOW_SCALE、STYLE_FOLLOW_PIN、STYLE_FOLLOW_CENTER;
+     */
+    int getStyle();
+
+    /**
+     * 获取视图的自定义高度，当视图样式为STYLE_SCALE和STYLE_FOLLOW_SCALE时，必须返回一个确切且大于0的值，使用横向刷新库时，该属性实际应该返回的是视图的宽度;
+     * 自1.6.1版本开始，如果想要当前视图铺满布局即MATCH_PARENT，那么支持返回ViewGroup.LayoutParams.MATCH_PARENT对应的值即`-1`;
+     */
+    int getCustomHeight();
+
+    /**
+     * 手指离开屏幕;
+     */
+    void onFingerUp(SmoothRefreshLayout layout, T indicator);
+
+    /**
+     * 重置视图;
+     */
+    void onReset(SmoothRefreshLayout layout);
+
+    /**
+     * 重新配置视图，准备刷新;
+     */
+    void onRefreshPrepare(SmoothRefreshLayout layout);
+
+    /**
+     * 开始刷新;
+     */
+    void onRefreshBegin(SmoothRefreshLayout layout, T indicator);
+
+    /**
+     * 刷新完成;
+     */
+    void onRefreshComplete(SmoothRefreshLayout layout,boolean isSuccessful);
+
+    /**
+     * 当头部或者尾部视图发生位置变化;
+     */
+    void onRefreshPositionChanged(SmoothRefreshLayout layout, byte status, T indicator);
+
+    /**
+     * 当头部或者尾部视图仍然处于处理事务中，这时候移动其他刷新视图则会调用该方法;
+     * 在1.4.6版本新加入;
+     */
+    void onPureScrollPositionChanged(SmoothRefreshLayout layout, byte status, T indicator);
+}</t>
+</code></pre>
+<h5>添加自定义刷新视图</h5>
+<ul>
+<li>全局静态代码构造</li>
+</ul>
+<pre><code>        SmoothRefreshLayout.setDefaultCreator(new IRefreshViewCreator() {
+            @Override
+            public IRefreshView     <iindicator> createHeader(SmoothRefreshLayout layout) {
+                ClassicHeader header = new ClassicHeader(layout.getContext());
+                return header;
+            }
+
+            @Override
+            public IRefreshView<iindicator> createFooter(SmoothRefreshLayout layout) {
+                ClassicFooter footer = new ClassicFooter(layout.getContext());
+                return footer;
+            }
+        });</iindicator></iindicator>
+</code></pre>
+<ul>
+<li>动态代码添加</li>
+</ul>
+<pre><code>        ClassicHeader header = new ClassicHeader(mRefreshLayout.getContext());
+        mRefreshLayout.setHeaderView(header);
+        ClassicFooter footer = new ClassicFooter(mRefreshLayout.getContext());
+        mRefreshLayout.setFooterView(footer);
+</code></pre>
+<ul>
+<li>请直接写入Xml文件,SmoothRefreshLayout会根据添加的View是否是实现了IRefreshView接口进行判断</li>
+</ul>
+<h4>实现类QQ下拉阻尼效果</h4>
+<pre><code>       mRefreshLayout.setIndicatorOffsetCalculator(new IIndicator.IOffsetCalculator() {
+           @Override
+           public float calculate(@IIndicator.MovingStatus int status, int currentPos, float offset) {
+               if (status == IIndicator.MOVING_HEADER) {
+                   if (offset < 0) {
+                       //如果希望拖动缩回时类似QQ一样没有阻尼效果，阻尼效果只存在于下拉则可以在此返回offset
+                       //如果希望拖动缩回时类似QQ一样有阻尼效果，那么请注释掉这个判断语句
+                       return offset;
+                   }
+                   return (float) Math.pow(Math.pow(currentPos / 2, 1.28d) + offset, 1 / 1.28d) * 2 - currentPos;
+               } else if (status == IIndicator.MOVING_FOOTER) {
+                   if (offset > 0) {
+                       //如果希望拖动缩回时类似QQ一样没有阻尼效果，阻尼效果只存在于上拉则可以在此返回offset
+                       //如果希望拖动缩回时类似QQ一样有阻尼效果，那么请注释掉这个判断语句
+                       return offset;
+                   }
+                   return -((float) Math.pow(Math.pow(currentPos / 2, 1.28d) - offset, 1 / 1.28d) * 2 - currentPos);
+               } else {
+                   if (offset > 0) {
+                       return (float) Math.pow(offset, 1 / 1.28d) * 2;
+                   } else if (offset < 0) {
+                       return -(float) Math.pow(-offset, 1 / 1.28d) * 2;
+                   } else {
+                       return offset;
+                   }
+               }
+           }
+       });
+</code></pre>
+<h4>Xml属性</h4>
+<h5>SmoothRefreshLayout 自身配置</h5>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">类型</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">sr_content</td>
+<td align="center">reference</td>
+<td align="center">指定内容视图的资源ID</td>
+</tr>
+<tr>
+<td align="center">sr_resistance</td>
+<td align="center">float</td>
+<td align="center">移动刷新视图时候的移动阻尼（默认:<code data-backticks="1">1.65f</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_resistanceOfFooter</td>
+<td align="center">float</td>
+<td align="center">移动Footer视图时候的移动阻尼（默认:<code data-backticks="1">1.65f</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_resistanceOfHeader</td>
+<td align="center">float</td>
+<td align="center">移动Header视图时候的移动阻尼（默认:<code data-backticks="1">1.65f</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_ratioToRefresh</td>
+<td align="center">float</td>
+<td align="center">触发刷新时位置占刷新视图的高度比（默认:<code data-backticks="1">1f</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_ratioOfHeaderToRefresh</td>
+<td align="center">float</td>
+<td align="center">触发刷新时位置占Header视图的高度比（默认:<code data-backticks="1">1f</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_ratioOfFooterToRefresh</td>
+<td align="center">float</td>
+<td align="center">触发加载更多时位置占Footer视图的高度比（默认:<code data-backticks="1">1f</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_ratioToKeep</td>
+<td align="center">float</td>
+<td align="center">刷新中保持视图位置占刷新视图的高度比（默认:<code data-backticks="1">1f</code>）,该属性的值必须小于等于触发刷新高度比才会有效果</td>
+</tr>
+<tr>
+<td align="center">sr_ratioToKeepHeader</td>
+<td align="center">float</td>
+<td align="center">刷新中保持视图位置占Header视图的高度比（默认:<code data-backticks="1">1f</code>）,该属性的值必须小于等于触发刷新高度比才会有效果</td>
+</tr>
+<tr>
+<td align="center">sr_ratioToKeepFooter</td>
+<td align="center">float</td>
+<td align="center">刷新中保持视图位置占Footer视图的高度比（默认:<code data-backticks="1">1f</code>）,该属性的值必须小于等于触发刷新高度比才会有效果</td>
+</tr>
+<tr>
+<td align="center">sr_maxMoveRatio</td>
+<td align="center">float</td>
+<td align="center">最大移动距离占刷新视图的高度比（默认:<code data-backticks="1">0f</code>，表示不会触发）</td>
+</tr>
+<tr>
+<td align="center">sr_maxMoveRatioOfHeader</td>
+<td align="center">float</td>
+<td align="center">最大移动距离占Header视图的高度比（默认:<code data-backticks="1">0f</code>，表示不会触发）</td>
+</tr>
+<tr>
+<td align="center">sr_maxMoveRatioOfFooter</td>
+<td align="center">float</td>
+<td align="center">最大移动距离占Footer视图的高度比（默认:<code data-backticks="1">0f</code>，表示不会触发）</td>
+</tr>
+<tr>
+<td align="center">sr_closeDuration</td>
+<td align="center">integer</td>
+<td align="center">指定收缩刷新视图到起始位置的时长（默认:<code data-backticks="1">350</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_closeHeaderDuration</td>
+<td align="center">integer</td>
+<td align="center">指定收缩Header视图到起始位置的时长（默认:<code data-backticks="1">350</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_closeFooterDuration</td>
+<td align="center">integer</td>
+<td align="center">指定收缩Footer视图到起始位置的时长（默认:<code data-backticks="1">350</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_backToKeepDuration</td>
+<td align="center">integer</td>
+<td align="center">设置回滚到保持刷新视图位置的时间（默认:<code data-backticks="1">200</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_backToKeepHeaderDuration</td>
+<td align="center">integer</td>
+<td align="center">设置回滚到保持Header视图位置的时间（默认:<code data-backticks="1">200</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_backToKeepFooterDuration</td>
+<td align="center">integer</td>
+<td align="center">设置回滚到保持Footer视图位置的时间（默认:<code data-backticks="1">200</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_enablePinContent</td>
+<td align="center">boolean</td>
+<td align="center">固定内容视图（默认:<code data-backticks="1">false</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_enableKeep</td>
+<td align="center">boolean</td>
+<td align="center">刷新中保持视图停留在所设置的应该停留的位置（默认:<code data-backticks="1">true</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_enablePullToRefresh</td>
+<td align="center">boolean</td>
+<td align="center">拉动刷新,下拉或者上拉到触发刷新位置即立即触发刷新（默认:<code data-backticks="1">false</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_enableOverScroll</td>
+<td align="center">boolean</td>
+<td align="center">越界回弹（默认:<code data-backticks="1">true</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_enableRefresh</td>
+<td align="center">boolean</td>
+<td align="center">设置是否启用下拉刷新（默认:<code data-backticks="1">ture</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_enableLoadMore</td>
+<td align="center">boolean</td>
+<td align="center">设置是否启用加载更多（默认:<code data-backticks="1">false</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_mode</td>
+<td align="center">enum</td>
+<td align="center">模式设置（默认:<code data-backticks="1">MODE_DEFAULT</code>为刷新控件模式）</td>
+</tr>
+<tr>
+<td align="center">sr_stickyHeader</td>
+<td align="center">reference</td>
+<td align="center">指定黏贴头部的资源ID</td>
+</tr>
+<tr>
+<td align="center">sr_stickyFooter</td>
+<td align="center">reference</td>
+<td align="center">指定黏贴尾部的资源ID</td>
+</tr>
+</tbody>
+</table>
+<h5>TwoLevelSmoothRefreshLayout 自身配置</h5>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">类型</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">sr_enableTwoLevelRefresh</td>
+<td align="center">boolean</td>
+<td align="center">设置是否启用二级刷新（默认:<code data-backticks="1">true</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_backToKeep2Duration</td>
+<td align="center">boolean</td>
+<td align="center">设置回滚到保持二级刷新头部处于二级刷新过程中的时长（默认:<code data-backticks="1">500</code>）</td>
+</tr>
+<tr>
+<td align="center">sr_closeHeader2Duration</td>
+<td align="center">boolean</td>
+<td align="center">设置关闭二级刷新头部的时长（默认:<code data-backticks="1">500</code>）</td>
+</tr>
+</tbody>
+</table>
+<h5>SmoothRefreshLayout包裹内部其他View支持配置</h5>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">类型</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">layout_gravity</td>
+<td align="center">flag</td>
+<td align="center">指定其它被包裹视图的对齐属性(非 targetView、非refreshView)</td>
+</tr>
+</tbody>
+</table>
+<h4>SmoothRefreshLayout 其它</h4>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">参数</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">setDefaultCreator（静态方法）</td>
+<td align="center">IRefreshViewCreator</td>
+<td align="center">设置刷新视图创建者,如果没有特殊指定刷新视图且设置的模式需要刷新视图则会调用创建者构建刷新视图</td>
+</tr>
+<tr>
+<td align="center">refreshComplete</td>
+<td align="center">无参</td>
+<td align="center">刷新完成,且设置最后一次刷新状态为成功</td>
+</tr>
+<tr>
+<td align="center">refreshComplete</td>
+<td align="center">boolean</td>
+<td align="center">刷新完成,参数:设置最后一次刷新是否刷新成功</td>
+</tr>
+<tr>
+<td align="center">refreshComplete</td>
+<td align="center">boolean,long</td>
+<td align="center">刷新完成,参数1:设置最后一次刷新是否刷新成功,参数2:设置延迟重置刷新状态的时间（会先触发刷新视图的刷新完成回调，但在延迟的时间内库实际上状态仍是刷新状态）</td>
+</tr>
+<tr>
+<td align="center">refreshComplete</td>
+<td align="center">long</td>
+<td align="center">刷新完成,且设置最后一次刷新状态为成功,参数:设置延迟重置刷新状态的时间（会先触发刷新视图的刷新完成回调，但在延迟的时间内库实际上状态仍是刷新状态）</td>
+</tr>
+<tr>
+<td align="center">setLoadingMinTime</td>
+<td align="center">long</td>
+<td align="center">设置开始刷新到结束刷新的最小时间差(默认:<code data-backticks="1">500</code>),参数:时间差</td>
+</tr>
+<tr>
+<td align="center">autoRefresh</td>
+<td align="center">无参</td>
+<td align="center">自动触发Header刷新,立即触发刷新事件并滚动到触发Header刷新位置</td>
+</tr>
+<tr>
+<td align="center">autoRefresh</td>
+<td align="center">boolean</td>
+<td align="center">自动触发Header刷新,参数:是否立即触发刷新事件,会滚动到触发Header刷新位置</td>
+</tr>
+<tr>
+<td align="center">autoRefresh</td>
+<td align="center">boolean,boolean</td>
+<td align="center">自动触发Header刷新,参数1:是否立即触发刷新事件,参数2:是否滚动到触发Header刷新位置</td>
+</tr>
+<tr>
+<td align="center">forceRefresh</td>
+<td align="center">无参</td>
+<td align="center">强制触发Footer刷新，该方法不会触发滚动</td>
+</tr>
+<tr>
+<td align="center">autoLoadMore</td>
+<td align="center">无参</td>
+<td align="center">自动触发Footer刷新,立即触发刷新事件并滚动到触发Footer刷新位置</td>
+</tr>
+<tr>
+<td align="center">autoLoadMore</td>
+<td align="center">boolean</td>
+<td align="center">自动触发Footer刷新,参数:是否立即触发刷新事件,会滚动到触发Footer刷新位置</td>
+</tr>
+<tr>
+<td align="center">autoLoadMore</td>
+<td align="center">boolean,boolean</td>
+<td align="center">自动触发Footer刷新,参数1:是否立即触发刷新事件,参数2:是否滚动到触发Footer刷新位置</td>
+</tr>
+<tr>
+<td align="center">forceLoadMore</td>
+<td align="center">无参</td>
+<td align="center">强制触发Footer刷新，该方法不会触发滚动</td>
+</tr>
+</tbody>
+</table>
+<h4>TwoLevelSmoothRefreshLayout java属性设置方法</h4>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">参数</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">setRatioOfHeaderToHintTwoLevel</td>
+<td align="center">float</td>
+<td align="center">设置触发二级刷新提示时的位置占Header视图的高度比</td>
+</tr>
+<tr>
+<td align="center">setRatioOfHeaderToTwoLevel</td>
+<td align="center">float</td>
+<td align="center">设置触发二级刷新时的位置占Header视图的高度比</td>
+</tr>
+<tr>
+<td align="center">setRatioToKeepTwoLevelHeader</td>
+<td align="center">float</td>
+<td align="center">二级刷新中保持视图位置占Header视图的高度比（默认:<code data-backticks="1">1f</code>）</td>
+</tr>
+<tr>
+<td align="center">setDisableTwoLevelRefresh</td>
+<td align="center">boolean</td>
+<td align="center">设置是否关闭二级刷新（默认:<code data-backticks="1">false</code>）</td>
+</tr>
+<tr>
+<td align="center">setDurationOfBackToKeepTwoLevel</td>
+<td align="center">int</td>
+<td align="center">设置回滚到保持二级刷新Header视图位置的时间（默认:<code data-backticks="1">500</code>）</td>
+</tr>
+<tr>
+<td align="center">setDurationToCloseTwoLevel</td>
+<td align="center">int</td>
+<td align="center">设置二级刷新Header刷新完成回滚到起始位置的时间（默认:<code data-backticks="1">500</code>）</td>
+</tr>
+</tbody>
+</table>
+<h4>TwoLevelSmoothRefreshLayout 其它</h4>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">参数</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">autoTwoLevelRefreshHint</td>
+<td align="center">无参</td>
+<td align="center">自动触发二级刷新提示并滚动到触发提示位置后回滚回起始位置</td>
+</tr>
+<tr>
+<td align="center">autoTwoLevelRefreshHint</td>
+<td align="center">int</td>
+<td align="center">自动触发二级刷新提示并滚动到触发提示位置后停留指定时长，参数:停留多长时间</td>
+</tr>
+<tr>
+<td align="center">autoTwoLevelRefreshHint</td>
+<td align="center">boolean</td>
+<td align="center">自动触发二级刷新提示是否滚动到触发提示位置后回滚回起始位置，参数:是否滚到到触发位置</td>
+</tr>
+<tr>
+<td align="center">autoTwoLevelRefreshHint</td>
+<td align="center">boolean,int</td>
+<td align="center">自动触发二级刷新提示,参数1:是否滚动到触发位置，参数2:停留多长时间</td>
+</tr>
+<tr>
+<td align="center">autoTwoLevelRefreshHint</td>
+<td align="center">boolean,int,boolean</td>
+<td align="center">自动触发二级刷新提示,参数1:是否滚动到触发位置，参数2:停留多长时间，参数3:是否可以被触摸打断，即触发提示动作过程中拦截触摸事件，直到回滚到起始位置并重置为默认状态</td>
+</tr>
+</tbody>
+</table>
+<h2>Thanks</h2>
+<ul>
+<li><a href="https://github.com/liaohuqiu/android-Ultra-Pull-To-Refresh">liaohuqiu android-Ultra-Pull-To-Refresh</a></li>
+<li><a href="https://github.com/pnikosis/materialish-progress">pnikosis material-progress</a></li>
+</ul>
